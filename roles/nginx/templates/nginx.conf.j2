@@ -1,0 +1,62 @@
+# Use less priveleged user to run
+user {{nginx_user}} {{nginx_group}};
+
+worker_processes     auto; # Based on number of processor cores
+worker_rlimit_nofile {{nginx_worker_rlimit_nofile}}; # Should be > worker_connections
+
+events {
+  multi_accept on;
+
+  worker_connections {{nginx_worker_connections}}; # limit on the maximum number of open files for worker processes `ulimit -n`
+}
+
+http {
+  # Hide nginx version information
+  server_tokens off;
+
+  # Configuration modules
+  include /etc/nginx/conf/http/gzip.conf; # GZIP settings
+  include /etc/nginx/conf/http/ssl.conf;  # Global SSL config
+  include /etc/nginx/conf/http/log.conf;  # Default logger config
+
+  # Decrease default timeouts to drop slow clients
+  keepalive_timeout     {{nginx_keepalive_timeout}};
+  send_timeout          {{nginx_send_timeout}};
+  client_header_timeout {{nginx_client_header_timeout}};
+  client_body_timeout   {{nginx_client_body_timeout}};
+  reset_timedout_connection {{nginx_reset_timedout_connection}};
+
+  # Increase default max body size for users uploads
+  client_max_body_size {{nginx_client_max_body_size}};
+
+  # Define the MIME types for files.
+  include       /etc/nginx/mime.types;
+  default_type  application/octet-stream;
+  charset_types text/xml text/plain text/vnd.wap.wml application/x-javascript application/rss+xml text/css application/javascript application/json;
+  charset       utf-8;
+
+  # Performance
+  sendfile    {{nginx_sendfile}};
+  tcp_nopush  {{nginx_tcp_nopush}};
+  tcp_nodelay {{nginx_tcp_nodelay}};
+
+  # SPDY settings
+  spdy_headers_comp {{nginx_spdy_headers_comp}};
+
+  {% if nginx_open_file_cache %}
+  # Cache informations about file descriptors, frequently accessed files
+  # can boost performance, but you need to test those values
+  open_file_cache          {{nginx_open_file_cache_base}};
+  open_file_cache_valid    {{nginx_open_file_cache_valid}};
+  open_file_cache_min_uses {{nginx_open_file_cache_min_uses}};
+  open_file_cache_errors   {{nginx_open_file_cache_errors}};
+  {% endif %}
+
+  # Drop connection by default for unknown hosts
+  server {
+    listen 80 default_server;
+    return 444; # do not send any response headers
+  }
+
+  include /etc/nginx/sites-enabled/*;
+}

@@ -1,0 +1,85 @@
+{% if item.upstreams is defined %}
+{% for u in item.upstreams %}
+upstream {{u.name}} {
+{% for dir in u.directives %}
+{% for k,v in dir.iteritems() %}
+  {{ k }} {{ v }};
+{% endfor %}
+{% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+server {
+  listen 80;
+  server_name {{item.host_name}}{% if item.alter_names %}{% for name in item.alter_names %} {{ name }}{% endfor %}{% endif %};
+
+  return 301 https://{{item.host_name}}$request_uri;
+}
+
+
+{% if item.alter_names -%}
+server {
+  listen 443 ssl;
+  server_name{% for name in item.alter_names %} {{ name }}{% endfor %};
+
+  ssl_certificate      /etc/nginx/ssl/{{item.host_name}}.crt;
+  ssl_certificate_key  /etc/nginx/ssl/{{item.host_name}}.key;
+
+  return 301 https://{{item.host_name}}$request_uri;
+}
+{% endif %}
+
+server {
+  listen 443 ssl spdy deferred;
+  server_name {{item.host_name}};
+
+{% if item.upstreams is defined %}
+{% for u in item.upstreams %}
+  location @{{u.name}} {
+    proxy_pass http://{{u.name}};
+  }
+{% endfor %}
+{% endif %}
+
+{% if item.locations is defined %}
+{% for loc in item.locations %}
+  location {{ loc.name }} {
+{% for x,y in loc.iteritems() if x != 'name' %}
+    {{ x }} {{ y }};
+{% endfor %}
+  }
+{% endfor %}
+{% endif %}
+
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+  # Here is two variants: performant, secure
+  include /etc/nginx/conf/server/ssl/{{item.ssl_type|default('performant')}}.conf;
+
+  # Paths to SSL certificates
+  ssl_certificate         /etc/nginx/ssl/{{item.host_name}}.crt;
+  ssl_certificate_key     /etc/nginx/ssl/{{item.host_name}}.key;
+  ssl_trusted_certificate /etc/nginx/ssl/{{item.host_name}}.crt;
+
+{% if item.ssl_stapling is defined %}
+  # Enable OCSP stappling
+  # https://blog.mozilla.org/security/2013/07/29/ocsp-stapling-in-firefox/
+  # Host configuration must contain ssl_trusted_certificate
+  ssl_stapling        on;
+  ssl_stapling_verify on;
+  resolver            {{item.ssl_stapling_resolver|default('8.8.8.8 8.8.4.4')}};
+  resolver_timeout    {{item.ssl_stapling_timeout|default('5s')}};
+{% endif %}
+
+{% if item.cors_origin is defined %}
+  add_header "Access-Control-Allow-Origin" "{{item.cors_origin}}";
+{% endif %}
+  add_header "Cache-Control" "no-transform"; # Prevent mobile network providers from modifying your site
+  add_header "X-UA-Compatible" "IE=Edge"; # Use ChromeFrame if it's installed
+
+  # Use dedicated log for each host
+  access_log /var/log/nginx/{{item.name}}.access.log;
+  error_log  /var/log/nginx/{{item.name}}.error.log;
+}

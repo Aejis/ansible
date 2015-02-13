@@ -1,0 +1,31 @@
+{% if item.upstreams is defined %}
+{% for u in item.upstreams %}
+upstream {{u.name}} {
+{% for dir in u.directives %}
+{% for k,v in dir.iteritems() %}
+  {{ k }} {{ v }};
+{% endfor %}
+{% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+{% for serv in item.servers %}
+server {
+{% for k,v in serv.iteritems() %}
+{% if k != 'locations' %}
+  {{ k }} {{ v }};
+{% endif %}
+{% endfor %}
+
+{% if serv.locations is defined %}
+{% for loc in serv.locations %}
+  location {{ loc.name }} {
+{% for x,y in loc.iteritems() if x != 'name' %}
+    {{ x }} {{ y }};
+{% endfor %}
+  }
+{% endfor %}
+{% endif %}
+}
+{% endfor %}

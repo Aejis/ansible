@@ -1,0 +1,32 @@
+- name: Nginx | Copy includes
+  copy:
+    src: "{{item}}"
+    dest: "{{nginx_dir}}/conf/{{item}}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - http/gzip.conf
+    - http/ssl.conf
+    - http/log.conf
+
+- name: Nginx | Copy ssl modules
+  copy:
+    src: "{{item}}"
+    dest: "{{nginx_dir}}/conf/{{item}}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - server/ssl/performant.conf
+    - server/ssl/secure.conf
+
+- name: Nginx | Generate main config
+  template:
+    src: nginx.conf.j2
+    dest: "{{nginx_dir}}/nginx.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx

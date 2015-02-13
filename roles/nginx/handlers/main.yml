@@ -1,0 +1,8 @@
+- name: start nginx
+  command: /etc/init.d/nginx start
+
+- name: restart nginx
+  command: /etc/init.d/nginx restart
+
+- name: reload nginx
+  command: /etc/init.d/nginx reload

@@ -1,0 +1,13 @@
+- hosts: test
+  roles:
+    - apk
+    - alpine
+    - nginx
+    # - postgresql
+    # - openssh
+    # - ruby
+    # - nodejs
+    # - supervisord
+  # tasks:
+  #   - include: tasks/postgres.yml
+  #   - apk: name=vim state=removed

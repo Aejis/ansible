@@ -1,0 +1,38 @@
+- name: Alpine | Install paxctl
+  apk: name={{ item }}
+  with_items:
+    - paxctl
+    - pax-utils
+
+- name: Alpine | Install coreutils
+  apk: name=coreutils
+
+- name: Alpine | Install build tools
+  apk: name={{ item }}
+  with_items:
+    - build-base
+    - zlib-dev
+    - openssl-dev
+    - libiconv-dev
+    - gdbm-dev
+    - db-dev
+    - readline-dev
+    - libffi-dev
+    - yaml-dev
+    - autoconf
+  when: alpine_install_build_tools
+
+- name: Alpine | Install additional soft
+  apk: name={{ item }}
+  with_items: alpine_additional_packages
+
+- name: Alpine | Install admin tools
+  apk: name={{ item }}
+  with_items:
+    - htop
+    - atop
+    - iftop
+    - tmux
+    - vim
+    - mtr
+  when: alpine_install_admin_tools

@@ -1,0 +1,22 @@
+- name: Nginx | Install nginx
+  apk: name=nginx
+
+- name: Nginx | Prepare dirs
+  file: "path={{nginx_dir}}{{item}} state=directory"
+  with_items:
+    - "/conf/http/"
+    - "/conf/server/ssl"
+    - "/ssl"
+    - "/sites-available"
+    - "/sites-enabled"
+
+- include: configure.yml
+- include: sites.yml
+
+- name: Nginx | Generate dhparam
+  command: "openssl dhparam -out {{nginx_dir}}/ssl/dhparam.pem 2048"
+  ignore_errors: True
+  args:
+    creates: "{{nginx_dir}}/ssl/dhparam.pem"
+
+

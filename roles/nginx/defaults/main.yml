@@ -1,0 +1,25 @@
+nginx_dir: /etc/nginx
+nginx_user: nginx
+nginx_group: nginx
+nginx_worker_rlimit_nofile: 4128 # Should be > worker_connections
+nginx_worker_connections: 4096 # limit on the maximum number of open files for worker processes `ulimit -n`
+nginx_keepalive_timeout: 20s
+nginx_send_timeout: 10s
+nginx_client_header_timeout: 10s
+nginx_client_body_timeout: 10s
+nginx_reset_timedout_connection: "on"
+nginx_client_max_body_size: 50m
+nginx_sendfile: "on"
+nginx_tcp_nopush: "on"
+nginx_tcp_nodelay: "off"
+nginx_spdy_headers_comp: 5
+nginx_open_file_cache: true
+nginx_open_file_cache_base: "max=1000 inactive=20s"
+nginx_open_file_cache_valid: 30s
+nginx_open_file_cache_min_uses: 2
+nginx_open_file_cache_errors: "on"
+
+# site inventory
+nginx_sites: []
+nginx_enabled_sites: []
+nginx_disabled_sites: []

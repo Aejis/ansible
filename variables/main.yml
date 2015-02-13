@@ -1,0 +1,36 @@
+nginx_sites:
+  - name: aejis
+    upstreams:
+      - name: aejis_backend
+        directives:
+          - server: 'unix:///srv/app/apps/aejis/shared/tmp/sockets/aejis1.sock'
+          - server: 'unix:///srv/app/apps/aejis/shared/tmp/sockets/aejis2.sock'
+          - keepalive: 32
+    servers:
+      - listen: 80
+        server_name: aejis.eu
+      - listen: 443 ssl
+        server_name: aejis.eu
+        locations:
+          - name: "@aejis_backend"
+            proxy_pass: "http://aejis_backend"
+          - name: /
+            try_files: "$uri $uri/ @aejis_backend"
+
+  - name: spreel
+    type: boilerplate
+    host_name: spreel.com
+    ssl_stapling: True
+    root: '/srv/app/apps/spreel/current/public'
+    alter_names:
+      - www.spreel.com
+      - spreel.biz
+    upstreams:
+      - name: spreel_backend
+        directives:
+          - server: 'unix:///srv/app/apps/spreel/shared/tmp/sockets/spreel.sock'
+          - keepalive: 32
+    locations:
+      - name: "/"
+        try_files: "$uri $uri/ @spreel_backend"
+        sendfile: "on"
