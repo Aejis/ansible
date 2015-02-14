@@ -1,7 +1,9 @@
 - hosts: test
+  # sudo: true
   roles:
     - apk
     - alpine
+    - sshd
     - nginx
     # - postgresql
     # - openssh

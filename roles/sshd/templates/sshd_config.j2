@@ -1,0 +1,10 @@
+Port {{sshd_port}}
+{% for algo in sshd_host_keys %}
+HostKey /etc/ssh/ssh_host_{{algo}}_key
+{% endfor %}
+PermitRootLogin {{sshd_permit_root_login}}
+PasswordAuthentication {{sshd_password_auth}}
+
+{% for k,v in sshd_settings.iteritems() %}
+{{k}} {{v}}
+{% endfor %}

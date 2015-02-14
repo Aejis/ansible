@@ -2,13 +2,13 @@
   apk: name=nginx
 
 - name: Nginx | Prepare dirs
-  file: "path={{nginx_dir}}{{item}} state=directory"
+  file: "path={{nginx_dir}}/{{item}} state=directory"
   with_items:
-    - "/conf/http/"
-    - "/conf/server/ssl"
-    - "/ssl"
-    - "/sites-available"
-    - "/sites-enabled"
+    - "conf/http/"
+    - "conf/server/ssl"
+    - "ssl"
+    - "sites-available"
+    - "sites-enabled"
 
 - include: configure.yml
 - include: sites.yml
