@@ -3,10 +3,13 @@
   roles:
     - apk
     - alpine
+    - os
     - sshd
+    # - firewall
+    # - snort
+    # - rkhunter
     - nginx
     # - postgresql
-    # - openssh
     # - ruby
     # - nodejs
     # - supervisord

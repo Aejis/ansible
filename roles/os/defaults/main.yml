@@ -1,0 +1,4 @@
+sysctl_kernel_shmmax: 579297856
+sysctl_kernel_pid_max: 65536
+sysctl_fs_file_max: 65000
+sysctl_disable_forwarding: True

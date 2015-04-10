@@ -1,0 +1,2 @@
+- name: Nginx | Install nginx
+  apk: name=nginx

@@ -1,5 +1,5 @@
-- name: Nginx | Install nginx
-  apk: name=nginx
+- include: install/alpine.yml
+  when: ansible_os_family == "Alpine"
 
 - name: Nginx | Prepare dirs
   file: "path={{nginx_dir}}/{{item}} state=directory"
